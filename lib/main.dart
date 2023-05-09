@@ -117,12 +117,14 @@ class DateRow extends StatelessWidget {
             children: [
               const Text('TODAY', style: TextStyle(fontSize: 32)),
               const Text(' · ', style: dayTextStyle),
-              ...days.map((day) {
-                return Text(
-                  '$day ',
-                  style: dayTextStyle,
-                );
-              }).toList(),
+              ...days.map(
+                (day) {
+                  return Text(
+                    '$day ',
+                    style: dayTextStyle,
+                  );
+                },
+              ).toList(),
             ],
           ),
         ),
@@ -227,40 +229,30 @@ class PlannerCard extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
               Padding(
-                  padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
-                  child: Row(
-                    children: List.generate(
-                      participants.length,
-                      (i) => Row(
-                        children: [
-                          Text(
-                            participants[i].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: (participants[i].toUpperCase() == 'ME')
-                                  ? Colors.black
-                                  : Colors.black54,
-                            ),
+                padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
+                child: Row(
+                  children: List.generate(
+                    participants.length,
+                    (i) => Row(
+                      children: [
+                        Text(
+                          participants[i].toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: (participants[i].toUpperCase() == 'ME')
+                                ? Colors.black
+                                : Colors.black54,
                           ),
-                          const SizedBox(width: 24),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 24),
+                      ],
                     ),
-                  )
-                  // Text(
-                  //   textAlign: TextAlign.left,
-                  //   participants.join('     ').toUpperCase(),
-                  //   style: const TextStyle(
-                  //     fontSize: 16,
-                  //     color: Colors.black38,
-                  //   ),
-                  // ),
                   ),
-              // SizedBox(height: 4),
+                ),
+              ),
             ],
           ),
         ),
