@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const PomodoroApp());
@@ -12,9 +13,7 @@ class PomodoroApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.orange,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.red),
       home: const PomodoroTimer(),
     );
   }
@@ -28,55 +27,178 @@ class PomodoroTimer extends StatefulWidget {
 }
 
 class _PomodoroTimerState extends State<PomodoroTimer> {
-  final bool _isTest = true; // Test mode, Time unit : min -> sec
-  int _timeInSeconds = 2;
+  final bool _isTest = false; // Test mode, Time unit : min -> sec
+  int _timeInSeconds = 15 * 60;
   bool _isRunning = false;
   int _completedCycles = 0;
   int _completedRounds = 0;
   Timer? _timer;
-  final int _targetTotalRound = 2;
-  final int _targetTotalGoal = 2;
+  final int _targetTotalRound = 4;
+  final int _targetTotalGoal = 12;
   bool _isOnBreak = false;
-  int _selectedTimeMin = 2; // selected time in minutes
+  int _selectedTimeMin = 15 * 60; // selected time in minutes
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.red[500],
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 24,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text('POMOTIMER'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(_isOnBreak
-              ? 'Rest: ${_timeInSeconds ~/ 60} min ${_timeInSeconds % 60} sec'
-              : 'Timer: ${_timeInSeconds ~/ 60} min ${_timeInSeconds % 60} sec'),
+        children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            // children: [15, 20, 25, 30, 35].map((e) => _timerButton(e)).toList(),
-            children: [2, 3, 4, 5, 6].map((e) => _timerButton(e)).toList(),
-          ),
-          _isRunning
-              ? IconButton(
-                  icon: const Icon(Icons.pause),
-                  onPressed: () {
-                    setState(() {
-                      _isRunning = false;
-                      _timer?.cancel();
-                    });
-                  },
-                )
-              : IconButton(
-                  icon: const Icon(Icons.play_arrow),
-                  onPressed: () {
-                    setState(() {
-                      _isRunning = true;
-                      _startTimer(_selectedTimeMin);
-                    });
-                  },
+            children: [
+              Card(
+                color: Colors.white,
+                child: SizedBox(
+                  width: 120,
+                  height: 160,
+                  child: Center(
+                    child: Text(
+                      '${_timeInSeconds ~/ 60}',
+                      style: TextStyle(
+                        color: Colors.red[500],
+                        fontSize: 64,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-          Text('Round: $_completedCycles/$_targetTotalRound'),
-          Text('Goal: $_completedRounds/$_targetTotalGoal'),
+              ),
+              const Text(
+                ":",
+                style: TextStyle(color: Colors.white54, fontSize: 64),
+              ),
+              Card(
+                color: Colors.white,
+                child: SizedBox(
+                  width: 120,
+                  height: 160,
+                  child: Center(
+                    child: Text(
+                      '${_timeInSeconds % 60}',
+                      style: TextStyle(
+                        color: Colors.red[500],
+                        fontSize: 64,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            _isOnBreak ? 'Rest Time 😎' : 'Focus Time 🔥',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 24),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [15, 20, 25, 30, 35]
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        child: _timerButton(e),
+                      ))
+                  .toList(),
+            ),
+          ),
+          const SizedBox(height: 48),
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.black26,
+            child: _isRunning
+                ? IconButton(
+                    iconSize: 48,
+                    color: Colors.white,
+                    icon: const Icon(Icons.pause),
+                    onPressed: () {
+                      setState(() {
+                        _isRunning = false;
+                        _timer?.cancel();
+                      });
+                    },
+                  )
+                : IconButton(
+                    iconSize: 48,
+                    color: Colors.white,
+                    icon: const Icon(Icons.play_arrow),
+                    onPressed: () {
+                      setState(() {
+                        _isRunning = true;
+                        _startTimer(_selectedTimeMin);
+                      });
+                    },
+                  ),
+          ),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '$_completedCycles / $_targetTotalRound',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "ROUND",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                    ),
+                  )
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    '$_completedRounds / $_targetTotalGoal',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "GOAL",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -119,11 +241,11 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
                 return AlertDialog(
                   title: const Text('Success!'),
                   content: const Text('You have reached your goal!'),
-                  actions: <Widget>[
+                  actions: [
                     TextButton(
                       child: const Text('Reset Timer'),
                       onPressed: () {
-                        _completedRounds = 00;
+                        _completedRounds = 0;
                         _completedCycles = 0;
                         Navigator.of(context).pop();
                       },
@@ -139,17 +261,45 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
   }
 
   Widget _timerButton(int minutes) {
-    return ElevatedButton(
-      child: Text('$minutes'),
-      onPressed: () {
-        setState(() {
-          _isRunning = false;
-          _timer?.cancel();
-          _timeInSeconds = _isTest ? minutes : minutes * 60;
-          _isOnBreak = false;
-          _selectedTimeMin = minutes;
-        });
-      },
-    );
+    return _selectedTimeMin == minutes
+        ? ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.red[500],
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                _isRunning = false;
+                _timer?.cancel();
+                _timeInSeconds = _isTest ? minutes : minutes * 60;
+                _isOnBreak = false;
+                _selectedTimeMin = minutes;
+              });
+            },
+            child: Text('$minutes'),
+          )
+        : OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              side: const BorderSide(width: 2, color: Colors.white60),
+            ),
+            child: Text('$minutes'),
+            onPressed: () {
+              setState(() {
+                _isRunning = false;
+                _timer?.cancel();
+                _timeInSeconds = _isTest ? minutes : minutes * 60;
+                _isOnBreak = false;
+                _selectedTimeMin = minutes;
+              });
+            },
+          );
   }
 }
